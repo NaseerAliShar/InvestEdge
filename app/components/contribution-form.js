@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const ContributionForm = ({ campaignId, updateFunding }) => {
   const [contributionAmount, setContributionAmount] = useState(0);
@@ -28,7 +28,6 @@ const ContributionForm = ({ campaignId, updateFunding }) => {
     e.preventDefault();
     const updatedFunding =
       campaign.currentFunding + parseFloat(contributionAmount);
-
     try {
       const response = await fetch(
         `https://66912b2926c2a69f6e8ebc93.mockapi.io/InvestEdge/campaigns/${campaignId}`,

@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import ContributionForm from "../components/contribution-form";
 
 function CampaignDetails() {
-  const { id } = useParams(); // Get the id param from the URL
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { id } = useParams();
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         const res = await fetch(
           `https://66912b2926c2a69f6e8ebc93.mockapi.io/InvestEdge/campaigns/${id}`
@@ -25,9 +25,7 @@ function CampaignDetails() {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchData();
+    })();
   }, [id]);
 
   const handleUpdateFunding = (updatedFunding) => {

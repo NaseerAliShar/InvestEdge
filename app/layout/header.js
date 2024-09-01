@@ -1,9 +1,9 @@
 "use client";
+import Web3 from "web3";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import Web3 from "web3";
+import { usePathname } from "next/navigation";
 
 const Header = () => {
   const path = usePathname();
@@ -24,7 +24,6 @@ const Header = () => {
 
       setAccount(accounts[0]);
       setBalance(web3.utils.fromWei(balance, "ether"));
-
       toast.success(`Connected to MetaMask: ${accounts[0]}`);
     } catch (error) {
       console.error("Error connecting to MetaMask:", error);
@@ -35,18 +34,20 @@ const Header = () => {
   return (
     <>
       <div className="flex justify-between items-center bg-white px-10 h-20 shadow-md">
-        <div className="text-4xl font-bold">
+        <div className="text-3xl font-semibold">
           Invest
           <span className="text-orange-500">
             <Link href="/">Edge</Link>
           </span>
         </div>
         <div>
-          <ul className="flex gap-6 text-xl font-semibold">
+          <ul className="flex gap-6 text-xl">
             <li>
               <Link
                 className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
-                  path === "/" ? "text-orange-500 font-bold" : "text-gray-800"
+                  path === "/"
+                    ? "text-orange-500 font-semibold"
+                    : "text-gray-800"
                 }`}
                 href="/"
               >
@@ -56,8 +57,20 @@ const Header = () => {
             <li>
               <Link
                 className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
+                  path === "/pages/campaigns"
+                    ? "text-orange-500 font-semibold"
+                    : "text-gray-800"
+                }`}
+                href="/pages/campaigns"
+              >
+                Campaigns
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
                   path === "/pages/about"
-                    ? "text-orange-500 font-bold"
+                    ? "text-orange-500 font-semibold"
                     : "text-gray-800"
                 }`}
                 href="/pages/about"
@@ -69,7 +82,7 @@ const Header = () => {
               <Link
                 className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
                   path === "/pages/contact"
-                    ? "text-orange-500 font-bold"
+                    ? "text-orange-500 font-semibold"
                     : "text-gray-800"
                 }`}
                 href="/pages/contact"
@@ -83,7 +96,7 @@ const Header = () => {
           <button
             className={`${
               account ? "bg-green-500 px-4" : "bg-orange-500 p-2"
-            } text-white rounded-lg transition-all duration-300 ease-in-out hover:scale-105`}
+            } text-white rounded-lg transition-all duration-300 ease-in-out hover:scale-110`}
             onClick={connectWallet}
           >
             {account ? (

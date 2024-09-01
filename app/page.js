@@ -2,31 +2,13 @@
 import "dotenv/config";
 import Typed from "typed.js";
 import { useEffect, useState } from "react";
-import CampaignList from "./components/campaign-list";
+import Campaigns from "./pages/campaigns/page";
 import CreateCampaign from "./components/create-campaign";
 
 const Home = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
-
-  const updateCampaigns = (newCampaign) => {
-    setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
-  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://66912b2926c2a69f6e8ebc93.mockapi.io/InvestEdge/campaigns"
-        );
-        const data = await response.json();
-        setCampaigns(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-
     const typed = new Typed("#element", {
       strings: ["Welcome to InvestEdge"],
       typeSpeed: 100,
@@ -56,13 +38,13 @@ const Home = () => {
         <div className="w-1/2">
           {showPopup && (
             <div className="popup">
-              <CreateCampaign setCampaigns={setCampaigns} />
+              <CreateCampaign />
             </div>
           )}
         </div>
       </div>
       <div className="bg-orange-50 h-max">
-        <CampaignList campaigns={campaigns} />
+        <Campaigns />
       </div>
     </>
   );

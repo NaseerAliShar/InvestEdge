@@ -16,6 +16,11 @@ const Header = () => {
       return;
     }
 
+    if (account) {
+      toast.info("Wallet already connected");
+      return;
+    }
+
     try {
       const web3 = new Web3(window.ethereum);
       await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -24,7 +29,7 @@ const Header = () => {
 
       setAccount(accounts[0]);
       setBalance(web3.utils.fromWei(balance, "ether"));
-      toast.success(`Connected to MetaMask: ${accounts[0]}`);
+      toast.success(`Wallet connected successfully`);
     } catch (error) {
       console.error("Error connecting to MetaMask:", error);
       toast.error("Failed to connect wallet");
@@ -96,7 +101,7 @@ const Header = () => {
           <button
             className={`${
               account ? "bg-green-500 px-4" : "bg-orange-500 p-2"
-            } text-white rounded-lg transition-all duration-300 ease-in-out hover:scale-110`}
+            } text-white rounded`}
             onClick={connectWallet}
           >
             {account ? (

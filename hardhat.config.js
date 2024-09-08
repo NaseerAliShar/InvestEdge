@@ -16,8 +16,8 @@ module.exports = {
   networks: {
     hardhat: {},
     sepolia: {
-      url: process.env.NEXT_PUBLIC_INFURA_API_KEY, // Infura API key
-      accounts: [process.env.NEXT_PUBLIC_SEPOLIA_PRIVATE_KEY], // Sepolia private key
+      url: process.env.NEXT_PUBLIC_RPC_URL, // Infura API key
+      accounts: [process.env.NEXT_PUBLIC_PRIVATE_KEY], //MetaMask Private key
     },
   },
 };

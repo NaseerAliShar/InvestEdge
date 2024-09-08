@@ -1,41 +1,41 @@
-// SPDX-License-Identifier: GPL-3.0
-
-pragma solidity ^0.8.24;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
 contract CampaignFactory {
     address[] public deployedCampaigns;
 
-    event campaignCreated(
+    event CampaignCreated(
         string title,
-        string image,
-        uint256 fundingGoal,
+        uint requiredAmount,
+        address indexed owner,
         address campaignAddress,
-        address indexed creator,
-        uint256 indexed timestamp,
+        uint indexed timestamp,
         string indexed category
     );
 
     function createCampaign(
         string memory campaignTitle,
-        string memory campaignImage,
-        string memory campaignDescription,
-        uint256 campaignFundingGoal,
-        string memory category
+        uint requiredCampaignAmount,
+        string memory category,
+        string memory campaignDescription
     ) public {
+        // Create new Campaign
         Campaign newCampaign = new Campaign(
             campaignTitle,
-            campaignImage,
+            requiredCampaignAmount,
             campaignDescription,
-            campaignFundingGoal
+            msg.sender
         );
+
+        // Add new campaign to the deployed campaigns array
         deployedCampaigns.push(address(newCampaign));
 
-        emit campaignCreated(
+        // Emit event for campaign creation
+        emit CampaignCreated(
             campaignTitle,
-            campaignImage,
-            campaignFundingGoal,
-            address(newCampaign),
+            requiredCampaignAmount,
             msg.sender,
+            address(newCampaign),
             block.timestamp,
             category
         );
@@ -44,39 +44,40 @@ contract CampaignFactory {
 
 contract Campaign {
     string public title;
-    string public image;
+    uint public requiredAmount;
     string public description;
-    uint256 public fundingGoal;
-    uint256 public currentFunding;
-    address payable public creator;
-    uint256 public deadline;
+    address payable public owner;
+    uint public receivedAmount;
 
-    event contributed(
+    event Donated(
         address indexed donor,
-        uint256 indexed amount,
-        uint256 indexed timestamp
+        uint indexed amount,
+        uint indexed timestamp
     );
 
     constructor(
         string memory campaignTitle,
-        string memory campaignImage,
+        uint requiredCampaignAmount,
         string memory campaignDescription,
-        uint256 campaignFundingGoal
+        address campaignOwner
     ) {
-        creator = payable(msg.sender);
         title = campaignTitle;
-        image = campaignImage;
+        requiredAmount = requiredCampaignAmount;
         description = campaignDescription;
-        fundingGoal = campaignFundingGoal; // * 10**18 // 1 ETH = 1e18 wei
+        owner = payable(campaignOwner);
     }
 
-    function contribute() public payable {
-        require(fundingGoal > currentFunding, "Funding goal has been met");
-        require(msg.value > 0, "Contribution must be greater than 0");
+    function donate() public payable {
+        // Check if required amount is not yet fulfilled
+        require(receivedAmount < requiredAmount, "Required amount fulfilled");
 
-        currentFunding += msg.value;
-        creator.transfer(msg.value);
+        // Transfer donation to the owner
+        owner.transfer(msg.value);
 
-        emit contributed(msg.sender, msg.value, block.timestamp);
+        // Update received amount
+        receivedAmount += msg.value;
+
+        // Emit donation event
+        emit Donated(msg.sender, msg.value, block.timestamp);
     }
 }

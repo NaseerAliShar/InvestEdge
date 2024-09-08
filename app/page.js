@@ -8,7 +8,9 @@ import { useEffect, useState } from "react";
 import CreateCampaign from "./components/create-campaign";
 import CampaignFactory from "../artifacts/contracts/Campaign.sol/CampaignFactory.json";
 
-export default Home = () => {
+import React from "react";
+
+function Home() {
   const [campaigns, setCampaigns] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
 
@@ -103,7 +105,8 @@ export default Home = () => {
       </div>
     </div>
   );
-};
+}
+export default Home;
 
 const CampaignCard = ({ campaign, id }) => {
   return (

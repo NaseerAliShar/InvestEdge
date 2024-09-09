@@ -1,7 +1,9 @@
 "use client";
+import { ethers } from "ethers";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import ContributionForm from "../components/contribution-form";
+import Campaign from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 function CampaignDetails() {
   const [campaign, setCampaign] = useState(null);
@@ -10,28 +12,48 @@ function CampaignDetails() {
   const { id } = useParams();
 
   useEffect(() => {
-    (async () => {
+    const fetchCampaignDetails = async () => {
+      if (!window.ethereum) {
+        alert("Please install MetaMask!");
+        return;
+      }
+
       try {
-        const res = await fetch(
-          `https://66912b2926c2a69f6e8ebc93.mockapi.io/InvestEdge/campaigns/${id}`
-        );
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        setCampaign(data);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        // Fetch campaign details from the smart contract
+        const contract = new ethers.Contract(id, Campaign.abi, signer);
+        const title = await contract.title();
+        const description = await contract.description();
+        const requiredAmount = await contract.requiredAmount();
+        const receivedAmount = await contract.receivedAmount();
+        const owner = await contract.owner();
+
+        // Set campaign data
+        setCampaign({
+          title,
+          description,
+          requiredAmount: ethers.formatEther(requiredAmount),
+          receivedAmount: ethers.formatEther(receivedAmount),
+          owner,
+        });
+        setLoading(false);
       } catch (error) {
+        console.error("Error fetching campaign details:", error);
         setError(error.message);
-      } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    fetchCampaignDetails();
   }, [id]);
 
   const handleUpdateFunding = (updatedFunding) => {
     setCampaign((prevCampaign) => ({
       ...prevCampaign,
-      currentFunding: updatedFunding,
+      receivedAmount: updatedFunding,
     }));
   };
 
@@ -73,18 +95,18 @@ function CampaignDetails() {
               <h3 className="font-semibold text-gray-800">Funding Details</h3>
               <p className="text-gray-700">
                 Funding Goal:{" "}
-                <span className="font-bold">${campaign.fundingGoal}</span>
+                <span className="font-bold">{campaign.requiredAmount} ETH</span>
               </p>
               <p className="text-gray-700">
                 Current Funding:{" "}
-                <span className="font-bold">${campaign.currentFunding}</span>
+                <span className="font-bold">
+                  ${campaign.receivedAmount} ETH
+                </span>
               </p>
             </div>
             <div className="mb-4">
               <h3 className="font-semibold text-gray-800">Campaign Deadline</h3>
-              <p className="text-gray-700">
-                {new Date(campaign.deadline).toLocaleDateString()}
-              </p>
+              <p className="text-gray-700">{Date()}</p>
             </div>
             <div className="mb-4">
               <h3 className="font-semibold text-gray-800 mb-1">
@@ -95,14 +117,14 @@ function CampaignDetails() {
                   className="bg-orange-500 h-3 rounded-full"
                   style={{
                     width: `${
-                      (campaign.currentFunding / campaign.fundingGoal) * 100
+                      (campaign.receivedAmount / campaign.requiredAmount) * 100
                     }%`,
                   }}
                 ></div>
               </div>
               <p className="text-gray-700 mt-2">
                 {(
-                  (campaign.currentFunding / campaign.fundingGoal) *
+                  (campaign.receivedAmount / campaign.requiredAmount) *
                   100
                 ).toFixed(2)}
                 % funded

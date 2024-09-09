@@ -21,10 +21,10 @@ const Campaigns = () => {
 
   return (
     <div className="h-max">
-      <h1 className="text-center pt-5 text-2xl font-semibold">
+      <h1 className="text-center pt-5 text-xl sm:text-2xl font-semibold">
         All Campaigns ({campaigns.length})
       </h1>
-      <div className="grid grid-cols-4 gap-4 p-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 py-5 sm:px-10">
         {campaigns.map((campaign) => (
           <CampaignCard
             id={campaign.id}

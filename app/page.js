@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import CreateCampaign from "./components/create-campaign";
 import CampaignFactory from "../artifacts/contracts/Campaign.sol/CampaignFactory.json";
-
 import React from "react";
 
 function Home() {
@@ -23,7 +22,7 @@ function Home() {
       loop: true,
     });
 
-    // Cleanup to destroy the instance on unmount
+    // Cleanup Typed.js instance on unmount
     return () => {
       if (typed && typeof typed.destroy === "function") {
         typed.destroy();
@@ -44,22 +43,18 @@ function Home() {
         );
 
         // Get all campaign creation events
-        const campaignCreatedFilter = contract.filters.CampaignCreated();
-        const campaignEvents = await contract.queryFilter(
-          campaignCreatedFilter
-        );
-
-        const fetchedCampaigns = campaignEvents.map((event) => ({
+        const AllCampaigns = contract.filters.CampaignCreated();
+        const FilterAllCampaigns = await contract.queryFilter(AllCampaigns);
+        const AllData = FilterAllCampaigns.map((event) => ({
           title: event.args.title,
-          description: event.args.description,
-          category: event.args.category,
           owner: event.args.owner,
-          requiredAmount: ethers.formatEther(event.args.requiredAmount), // Format amount
-          date: event.args.timestamp, // Ensure this is a BigNumber or valid timestamp
+          amount: ethers.formatEther(event.args.requiredAmount), // Format amount
+          date: parseInt(event.args.timestamp) * 1000, // Convert to milliseconds
+          id: event.args.campaignAddress,
         }));
-        console.log(fetchedCampaigns);
-        setCampaigns(fetchedCampaigns);
         toast.success("Campaigns fetched successfully!");
+        setCampaigns(AllData);
+        console.log(AllData);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
         toast.error("Failed to fetch campaigns");
@@ -70,34 +65,39 @@ function Home() {
 
   return (
     <div>
-      <div className="flex flex-wrap h-screen py-10 bg-[url('https://images.unsplash.com/photo-1519995451813-39e29e054914?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center">
-        <div className="w-1/2 p-10">
-          <span className="typed text-2xl text-gray-700 font-semibold"></span>
-          <h1 className="text-2xl text-gray-700 font-semibold">
+      {/* Hero Section */}
+      <div className="flex flex-col md:flex-row h-screen py-10 bg-[url('https://images.unsplash.com/photo-1519995451813-39e29e054914?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 p-6 md:p-10">
+          <span className="typed text-xl md:text-2xl text-gray-700 font-semibold"></span>
+          <h1 className="text-xl md:text-3xl text-gray-700 font-semibold mt-4">
             Empower Your Future with
             <span className="text-orange-600 font-bold"> InvestEdge</span>
           </h1>
           <button
-            className="bg-orange-500 p-2 text-white my-5 rounded text-xl"
+            className="bg-orange-500 p-2 text-white my-5 rounded text-lg md:text-xl w-full md:w-auto"
             onClick={() => setShowPopup(!showPopup)}
           >
             Start a Project
           </button>
         </div>
-        <div className="w-1/2">
+
+        {/* Right Section */}
+        <div className="w-full md:w-1/2 p-6">
           {showPopup && (
-            <div className="popup">
+            <div className="popup bg-white p-4 rounded shadow-lg max-w-sm mx-auto">
               <CreateCampaign />
             </div>
           )}
         </div>
       </div>
 
-      <div className="bg-orange-50 h-max">
-        <h1 className="text-center pt-5 text-2xl font-semibold">
+      {/* Campaigns Section */}
+      <div className="bg-orange-50 h-max py-10">
+        <h1 className="text-center text-xl md:text-2xl font-semibold">
           All Campaigns ({campaigns.length})
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 md:p-10">
           {campaigns.map((campaign, index) => (
             <CampaignCard key={index} campaign={campaign} id={index} />
           ))}
@@ -108,26 +108,27 @@ function Home() {
 }
 export default Home;
 
-const CampaignCard = ({ campaign, id }) => {
+const CampaignCard = ({ campaign }) => {
+  const { id, title, owner, amount, date } = campaign;
+
   return (
     <div className="flex flex-col justify-between bg-white shadow-lg rounded-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
       <div className="p-6 flex-grow">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          {campaign.title}
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+          {title}
         </h2>
-        <p className="text-gray-600 mb-4">{campaign.description}</p>
         <div className="mb-4">
           <span className="inline-block bg-orange-500 text-white text-xs px-3 py-1 rounded-full">
-            {campaign.category}
+            {owner.substring(0, 9)}...{owner.substring(owner.length - 4)}
           </span>
         </div>
         <div className="mb-4">
           <span className="text-gray-700 font-medium">Required Amount: </span>
-          <span className="text-gray-900">${campaign.requiredAmount}</span>
+          <span className="text-gray-900">{amount} ETH</span>
         </div>
         <div className="text-gray-600 text-sm">
           <span>Date: </span>
-          {campaign.date}
+          <span>{new Date(date).toLocaleString()}</span>
         </div>
       </div>
       <Link href={`/${id}`}>

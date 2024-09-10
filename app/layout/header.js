@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { usePathname } from "next/navigation";
-import { FaBars, FaTimes } from "react-icons/fa"; // Import React Icons
+import { FaBars, FaTimes } from "react-icons/fa";
 
 const Header = () => {
   const path = usePathname();
   const [account, setAccount] = useState(null);
   const [balance, setBalance] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage toggle
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -120,7 +120,7 @@ const Header = () => {
         <div className="hidden md:block">
           <button
             className={`${
-              account ? "bg-green-500 px-4" : "bg-orange-500 p-2"
+              account ? "bg-green-500 px-2" : "bg-orange-500 w-32 py-2"
             } text-white rounded transition duration-300 ease-in-out transform hover:scale-105`}
             onClick={connectWallet}
           >

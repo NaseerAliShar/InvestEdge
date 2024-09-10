@@ -54,7 +54,7 @@ const MySelect = ({ label, ...props }) => {
 
 const CreateCampaign = () => {
   return (
-    <div className="max-w-md mx-auto mt-10 px-8 py-4 bg-white rounded-lg shadow-md">
+    <div>
       <h1 className="text-2xl font-bold text-center text-orange-500 mb-4">
         Create Campaign
       </h1>

@@ -1,20 +1,22 @@
 "use client";
 import { ethers } from "ethers";
+import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
+import { FaCircleNotch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
-import ContributionForm from "../components/contribution-form";
 import Campaign from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 function CampaignDetails() {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [amount, setAmount] = useState(""); // State to handle donation input
   const { id } = useParams();
 
+  // Fetch campaign details
   useEffect(() => {
     const fetchCampaignDetails = async () => {
       if (!window.ethereum) {
-        alert("Please install MetaMask!");
+        toast.error("Please install MetaMask!");
         return;
       }
 
@@ -39,30 +41,57 @@ function CampaignDetails() {
           receivedAmount: ethers.formatEther(receivedAmount),
           owner,
         });
+
+        // Fetch donations and log them
+        const Donations = contract.filters.Donated();
+        const AllDonations = await contract.queryFilter(Donations);
+        const ListDonations = AllDonations.map((donation) => ({
+          amount: ethers.formatEther(donation.args.amount),
+          donor: donation.args.donor,
+          date: new Date(donation.args.date.toNumber() * 1000).toLocaleString(),
+        }));
+        console.log("List of Donations:", ListDonations);
+
         setLoading(false);
       } catch (error) {
+        toast.error("Failed to fetch campaign details");
         console.error("Error fetching campaign details:", error);
-        setError(error.message);
         setLoading(false);
       }
     };
-
     fetchCampaignDetails();
   }, [id]);
 
-  const handleUpdateFunding = (updatedFunding) => {
-    setCampaign((prevCampaign) => ({
-      ...prevCampaign,
-      receivedAmount: updatedFunding,
-    }));
+  // Handle donation transaction
+  const Donate = async () => {
+    if (!amount || isNaN(amount)) {
+      toast.error("Please enter a valid donation amount");
+      return;
+    }
+    try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const contract = new ethers.Contract(id, Campaign.abi, signer);
+      const transaction = await contract.donate({
+        value: ethers.parseEther(amount),
+      });
+      await transaction.wait();
+      toast.success("Donation successful!");
+      setAmount(""); // Clear the input after donation
+    } catch (error) {
+      toast.error("Failed to donate to campaign");
+      console.error("Error donating to campaign:", error);
+    }
   };
 
   if (loading) {
-    return <div className="text-center p-10">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center p-10 text-red-500">Error: {error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <FaCircleNotch size={80} className="animate-spin text-orange-500" />
+      </div>
+    );
   }
 
   if (!campaign) {
@@ -74,70 +103,79 @@ function CampaignDetails() {
   }
 
   return (
-    <>
-      <div className="bg-orange-100 p-10 min-h-screen">
-        <h1 className="text-3xl text-center font-bold mb-8 text-gray-800">
-          Campaign Details
-        </h1>
-        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-          <div
-            className="bg-cover"
-            style={{
-              backgroundImage: `url(https://source.unsplash.com/random)`,
-            }}
-          ></div>
-          <div className="p-8">
-            <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
-              {campaign.title}
-            </h2>
-            <p className="mb-4 text-gray-600">{campaign.description}</p>
-            <div className="mb-4">
-              <h3 className="font-semibold text-gray-800">Funding Details</h3>
-              <p className="text-gray-700">
-                Funding Goal:{" "}
-                <span className="font-bold">{campaign.requiredAmount} ETH</span>
-              </p>
-              <p className="text-gray-700">
-                Current Funding:{" "}
-                <span className="font-bold">
-                  ${campaign.receivedAmount} ETH
-                </span>
-              </p>
+    <div className="bg-orange-100 p-10 min-h-screen">
+      <h1 className="text-3xl text-center font-bold mb-8 text-gray-800">
+        Campaign Details
+      </h1>
+      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
+        <div className="p-8">
+          <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
+            {campaign.title}
+          </h2>
+          <p className="mb-6 text-gray-600 text-center">
+            {campaign.description}
+          </p>
+          <div className="flex flex-col items-center mb-6">
+            <span className="text-gray-700 font-semibold">
+              Funding Goal:{" "}
+              <span className="font-bold">{campaign.requiredAmount} ETH</span>
+            </span>
+            <span className="text-gray-700 font-semibold mt-2">
+              Current Funding:{" "}
+              <span className="font-bold">{campaign.receivedAmount} ETH</span>
+            </span>
+          </div>
+          <div className="flex flex-col items-center mb-6">
+            <h3 className="text-gray-700 font-semibold">Campaign Deadline</h3>
+            <span className="text-gray-500">
+              {new Date().toLocaleDateString()}
+            </span>
+          </div>
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-2 text-center">
+              Campaign Progress
+            </h3>
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+              <div
+                className="bg-orange-500 h-3 rounded-full"
+                style={{
+                  width: `${
+                    (campaign.receivedAmount / campaign.requiredAmount) * 100
+                  }%`,
+                }}
+              ></div>
             </div>
-            <div className="mb-4">
-              <h3 className="font-semibold text-gray-800">Campaign Deadline</h3>
-              <p className="text-gray-700">{Date()}</p>
+            <p className="text-center text-gray-700 font-semibold">
+              {(
+                (campaign.receivedAmount / campaign.requiredAmount) *
+                100
+              ).toFixed(2)}
+              % funded
+            </p>
+          </div>
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-4 text-center">
+              Donate to this campaign
+            </h3>
+            <div className="flex justify-center">
+              <input
+                type="text"
+                className="border border-gray-300 rounded-l-lg py-2 px-4 focus:outline-none focus:ring focus:ring-orange-500"
+                placeholder="Enter amount in ETH"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+              <button
+                className="bg-orange-500 text-white py-2 px-4 rounded-r-lg hover:bg-orange-600"
+                onClick={Donate}
+              >
+                Donate
+              </button>
             </div>
-            <div className="mb-4">
-              <h3 className="font-semibold text-gray-800 mb-1">
-                Campaign Progress
-              </h3>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className="bg-orange-500 h-3 rounded-full"
-                  style={{
-                    width: `${
-                      (campaign.receivedAmount / campaign.requiredAmount) * 100
-                    }%`,
-                  }}
-                ></div>
-              </div>
-              <p className="text-gray-700 mt-2">
-                {(
-                  (campaign.receivedAmount / campaign.requiredAmount) *
-                  100
-                ).toFixed(2)}
-                % funded
-              </p>
-            </div>
-            <ContributionForm
-              campaignId={id}
-              updateFunding={handleUpdateFunding}
-            />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

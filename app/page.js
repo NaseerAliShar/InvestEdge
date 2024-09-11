@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import CreateCampaign from "./components/create-campaign";
 import CampaignFactory from "../artifacts/contracts/Campaign.sol/CampaignFactory.json";
-import React from "react";
 
 function Home() {
   const [campaigns, setCampaigns] = useState([]);

@@ -67,7 +67,7 @@ const CreateCampaign = () => {
         }}
         validationSchema={Yup.object({
           title: Yup.string()
-            .max(15, "Must be 15 characters or less")
+            .max(50, "Must be 50 characters or less")
             .required("Required"),
           description: Yup.string()
             .max(100, "Must be 100 characters or less")

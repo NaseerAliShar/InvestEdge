@@ -99,7 +99,7 @@ function Home() {
         <h1 className="text-center text-xl md:text-2xl font-semibold">
           All Campaigns ({campaigns.length})
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 md:p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-3 gap-6 p-6 md:p-10">
           {campaigns.map((campaign, index) => (
             <CampaignCard key={index} campaign={campaign} id={index} />
           ))}

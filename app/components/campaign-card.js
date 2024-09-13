@@ -1,58 +1,36 @@
 import Link from "next/link";
-import { useMemo } from "react";
 
-const CampaignCard = ({
-  id,
-  title,
-  description,
-  fundingGoal,
-  currentFunding,
-  deadline,
-}) => {
-  const progress = useMemo(() => {
-    const progress = Math.floor((currentFunding / fundingGoal) * 100);
-    return progress > 100 ? 100 : progress;
-  }, [currentFunding, fundingGoal]);
-
-  const duration = useMemo(() => {
-    const start = new Date();
-    const end = new Date(deadline);
-    const diff = end - start;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days < 0 ? 0 : days;
-  }, [deadline]);
+const CampaignCard = ({ campaign }) => {
+  const { id, title, owner, amount, date } = campaign;
 
   return (
-    <div className="bg-white shadow-md rounded-md p-4 sm:p-4 h-[320px] w-full max-w-lg mx-auto flex flex-col justify-between">
-      <h2 className="text-lg sm:text-xl font-semibold">{title}</h2>
-
-      {/* Truncated description with substring */}
-      <p className="text-gray-600 text-sm sm:text-base">
-        {description.length > 100
-          ? description.substring(0, 140) + "..."
-          : description}
-      </p>
-
-      <div className="text-gray-700 text-sm sm:text-base">
-        <p>Funding Goal: ${fundingGoal}</p>
-        <p>Current Funding: ${currentFunding}</p>
+    <div className="flex flex-col justify-between bg-white shadow-lg rounded-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+      <div className="p-6 flex-grow">
+        <h2 className="text-xl md:text-2xl text-center font-bold text-gray-900 mb-4 leading-snug tracking-tight">
+          {title}
+        </h2>
+        <div className="mb-6 flex items-center justify-between">
+          <span className="inline-block bg-orange-500 text-white text-md px-4 py-1 rounded-full">
+            {owner.substring(0, 9)}...{owner.substring(owner.length - 4)}
+          </span>
+          <span className="ml-4 text-md text-gray-500">Owner</span>
+        </div>
+        <div className="mb-6 flex justify-between">
+          <span className="text-gray-700 font-semibold block">
+            Required Amount:
+          </span>
+          <span className="text-xl font-semibold text-gray-900">
+            {amount} ETH
+          </span>
+        </div>
+        <div className="text-gray-600 text-sm flex justify-between">
+          <span className="block text-gray-700 font-semibold">Date:</span>
+          <span>{new Date(date).toLocaleString()}</span>
+        </div>
       </div>
-
-      <div className="bg-orange-200 h-2 rounded-full">
-        <div
-          className="bg-orange-500 h-full rounded-full"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
-
-      <div className="flex justify-between text-xs sm:text-sm text-gray-700">
-        <p>{progress}% funded</p>
-        <p>{duration ? `${duration} days left` : "Expired"}</p>
-      </div>
-
       <Link href={`/${id}`}>
-        <button className="bg-orange-500 text-white py-2 sm:py-2 hover:bg-orange-600 rounded w-full text-sm sm:text-base transition-colors duration-300">
-          Go to Campaign
+        <button className="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-3 px-5 w-full rounded-b-xl font-semibold transition-colors duration-300 hover:from-orange-500 hover:to-orange-700">
+          View Campaign
         </button>
       </Link>
     </div>

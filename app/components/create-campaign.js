@@ -1,56 +1,10 @@
 import * as Yup from "yup";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
-import { Formik, Form, useField } from "formik";
+import { Formik, Form } from "formik";
+import MyText from "./MyText";
+import MySelect from "./MySelect";
 import CampaignFactory from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json";
-
-const MyTextInput = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  return (
-    <div className="mb-4">
-      <label
-        className="block text-sm font-medium text-gray-700 mb-1"
-        htmlFor={props.id || props.name}
-      >
-        {label}
-      </label>
-      <input
-        className={`w-full px-3 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-          meta.touched && meta.error ? "border-red-500" : "border-gray-300"
-        }`}
-        {...field}
-        {...props}
-      />
-      {meta.touched && meta.error ? (
-        <div className="text-red-500 text-sm mt-1">{meta.error}</div>
-      ) : null}
-    </div>
-  );
-};
-
-const MySelect = ({ label, ...props }) => {
-  const [field, meta] = useField(props);
-  return (
-    <div className="mb-4">
-      <label
-        className="block text-sm font-medium text-gray-700 mb-1"
-        htmlFor={props.id || props.name}
-      >
-        {label}
-      </label>
-      <select
-        className={`w-full px-3 py-1 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
-          meta.touched && meta.error ? "border-red-500" : "border-gray-300"
-        }`}
-        {...field}
-        {...props}
-      />
-      {meta.touched && meta.error ? (
-        <div className="text-red-500 text-sm mt-1">{meta.error}</div>
-      ) : null}
-    </div>
-  );
-};
 
 const CreateCampaign = () => {
   return (
@@ -125,24 +79,24 @@ const CreateCampaign = () => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <MyTextInput
+            <MyText
               label="Title"
               name="title"
               type="text"
               placeholder="Enter Campaign Title"
             />
 
-            <MyTextInput
+            <MyText
               label="Description"
               name="description"
               type="text"
               placeholder="Enter Campaign Description"
             />
 
-            <MyTextInput
+            <MyText
               label="Required Amount"
               name="requiredAmount"
-              type="number" // Set to number for proper input validation
+              type="number"
               placeholder="Enter Required Amount for Campaign"
             />
 

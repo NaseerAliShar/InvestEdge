@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import Campaign from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 function CampaignDetails() {
+  const [allDonations, setAllDonations] = useState([]);
   const [myDonations, setMyDonations] = useState([]);
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ function CampaignDetails() {
       await window.ethereum.request({ method: "eth_requestAccounts" });
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+      const address = await signer.getAddress();
       const contract = new ethers.Contract(id, Campaign.abi, signer);
 
       const title = await contract.title();
@@ -38,16 +40,24 @@ function CampaignDetails() {
         owner,
       });
 
+      // Fetch all donations
       const Donations = contract.filters.Donated();
-      const AllDonations = await contract.queryFilter(Donations);
-      const ListDonations = AllDonations.map((donation) => ({
+      const allDonationEvents = await contract.queryFilter(Donations);
+      const allDonationsList = allDonationEvents.map((donation) => ({
         amount: ethers.formatEther(donation.args.amount),
         donor: donation.args.donor,
         date: new Date(
           parseInt(donation.args.timestamp) * 1000
         ).toLocaleString(),
       }));
-      setMyDonations(ListDonations);
+
+      // Filter my donations by address
+      const myDonationsList = allDonationsList.filter(
+        (donation) => donation.donor.toLowerCase() === address.toLowerCase()
+      );
+
+      setAllDonations(allDonationsList);
+      setMyDonations(myDonationsList);
       setLoading(false);
     } catch (error) {
       toast.error("Failed to fetch campaign details");
@@ -99,7 +109,6 @@ function CampaignDetails() {
     );
   }
 
-  // Calculate progress as a percentage
   const progress = (campaign.receivedAmount / campaign.requiredAmount) * 100;
 
   return (
@@ -116,7 +125,6 @@ function CampaignDetails() {
             {campaign.description}
           </p>
 
-          {/* Funding Details with Progress Bar */}
           <div className="mb-6">
             <div className="flex flex-col items-center">
               <span className="text-gray-700 font-semibold">
@@ -127,8 +135,6 @@ function CampaignDetails() {
                 Current Funding:{" "}
                 <span className="font-bold">{campaign.receivedAmount} ETH</span>
               </span>
-
-              {/* Progress Bar */}
               <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
                 <div
                   className="bg-orange-500 h-4 rounded-full transition-all duration-500"
@@ -165,7 +171,42 @@ function CampaignDetails() {
           {/* My Donations Table */}
           <div className="mt-10">
             <h3 className="text-lg font-semibold text-center mb-4">
-              Donations
+              My Donations
+            </h3>
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">Amount (ETH)</th>
+                  <th className="py-2 px-4 border-b">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myDonations.length > 0 ? (
+                  myDonations.map((donation, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b text-center">
+                        {donation.amount}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {donation.date}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className="py-4 text-center">
+                      No donations yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* All Donations Table */}
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold text-center mb-4">
+              All Donations
             </h3>
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
@@ -176,14 +217,14 @@ function CampaignDetails() {
                 </tr>
               </thead>
               <tbody>
-                {myDonations.length > 0 ? (
-                  myDonations.map((donation, index) => (
+                {allDonations.length > 0 ? (
+                  allDonations.map((donation, index) => (
                     <tr key={index}>
                       <td className="py-2 px-4 border-b">{donation.donor}</td>
-                      <td className="py-2 px-4 border-b">{donation.amount}</td>
-                      <td className="py-2 px-4 border-b">
-                        <span>{new Date(donation.date).toLocaleString()}</span>
+                      <td className="py-2 px-4 border-b text-center">
+                        {donation.amount}
                       </td>
+                      <td className="py-2 px-4 border-b">{donation.date}</td>
                     </tr>
                   ))
                 ) : (

@@ -92,6 +92,18 @@ const Header = () => {
             <li>
               <Link
                 className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
+                  path === "/pages/dashboard"
+                    ? "text-orange-500 font-semibold"
+                    : "text-gray-800"
+                }`}
+                href="/pages/dashboard"
+              >
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`transition-all duration-300 ease-in-out hover:text-orange-500 hover:scale-110 ${
                   path === "/pages/about"
                     ? "text-orange-500 font-semibold"
                     : "text-gray-800"

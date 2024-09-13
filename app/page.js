@@ -5,6 +5,7 @@ import Typed from "typed.js";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
+import CampaignCard from "./components/campaign-card";
 import CreateCampaign from "./components/create-campaign";
 import CampaignFactory from "../artifacts/contracts/Campaign.sol/CampaignFactory.json";
 
@@ -109,38 +110,3 @@ function Home() {
   );
 }
 export default Home;
-
-const CampaignCard = ({ campaign }) => {
-  const { id, title, owner, amount, date } = campaign;
-
-  return (
-    <div className="flex flex-col justify-between bg-white shadow-lg rounded-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-      <div className="p-6 flex-grow">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 leading-snug tracking-tight">
-          {title}
-        </h2>
-        <div className="mb-6 flex items-center">
-          <span className="inline-block bg-orange-500 text-white text-xs px-4 py-1 rounded-full">
-            {owner.substring(0, 8)}...{owner.substring(owner.length - 4)}
-          </span>
-          <span className="ml-4 text-xs text-gray-500">Owner</span>
-        </div>
-        <div className="mb-6">
-          <span className="text-gray-700 font-semibold block">
-            Required Amount:
-          </span>
-          <span className="text-xl font-bold text-gray-900">{amount} ETH</span>
-        </div>
-        <div className="text-gray-600 text-sm">
-          <span className="block text-gray-700 font-semibold">Date:</span>
-          <span>{new Date(date).toLocaleString()}</span>
-        </div>
-      </div>
-      <Link href={`/${id}`}>
-        <button className="bg-gradient-to-r from-orange-400 to-orange-600 text-white py-3 px-5 w-full rounded-b-xl font-semibold transition-colors duration-300 hover:from-orange-500 hover:to-orange-700">
-          View Campaign
-        </button>
-      </Link>
-    </div>
-  );
-};

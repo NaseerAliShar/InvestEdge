@@ -1,15 +1,16 @@
 import * as Yup from "yup";
 import { ethers } from "ethers";
-import { toast } from "react-toastify";
 import { Formik, Form } from "formik";
+import { toast } from "react-toastify";
 import MyText from "./MyText";
 import MySelect from "./MySelect";
+import config from "../config/config";
 import CampaignFactory from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json";
 
 const CreateCampaign = () => {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center text-orange-500 mb-4">
+      <h1 className="text-2xl font-bold text-center text-orange-500 mb-6">
         Create Campaign
       </h1>
       <Formik
@@ -26,7 +27,7 @@ const CreateCampaign = () => {
           description: Yup.string()
             .max(100, "Must be 100 characters or less")
             .required("Required"),
-          requiredAmount: Yup.number() // Correct validation for numeric input
+          requiredAmount: Yup.number()
             .min(1, "Must be at least 1")
             .required("Required"),
           category: Yup.string()
@@ -52,18 +53,17 @@ const CreateCampaign = () => {
           console.log(`User Balance: ${balance}`);
 
           const contract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+            config.contractAddress,
             CampaignFactory.abi,
             signer
           );
 
           try {
-            // Ensure all 4 parameters are passed to match the contract
             const tx = await contract.createCampaign(
               values.title,
-              ethers.parseEther(values.requiredAmount.toString()), // Ensure correct type
+              ethers.parseEther(values.requiredAmount.toString()),
               values.category,
-              values.description // Pass the description as well
+              values.description
             );
             await tx.wait();
             console.log("Campaign created successfully!", tx.to);
@@ -78,12 +78,13 @@ const CreateCampaign = () => {
         }}
       >
         {({ isSubmitting }) => (
-          <Form>
+          <Form className="space-y-4">
             <MyText
               label="Title"
               name="title"
               type="text"
               placeholder="Enter Campaign Title"
+              className="w-full"
             />
 
             <MyText
@@ -91,16 +92,18 @@ const CreateCampaign = () => {
               name="description"
               type="text"
               placeholder="Enter Campaign Description"
+              className="w-full"
             />
 
             <MyText
-              label="Required Amount"
+              label="Required Amount (ETH)"
               name="requiredAmount"
               type="number"
-              placeholder="Enter Required Amount for Campaign"
+              placeholder="Enter Required Amount"
+              className="w-full"
             />
 
-            <MySelect label="Category" name="category">
+            <MySelect label="Category" name="category" className="w-full">
               <option value="" disabled>
                 Select Category
               </option>
@@ -108,14 +111,14 @@ const CreateCampaign = () => {
               <option value="education">Education</option>
               <option value="finance">Finance</option>
               <option value="health">Health</option>
-              <option value="music">Music</option>
               <option value="arts">Arts</option>
             </MySelect>
+
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-1 px-4 rounded-md shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
+              className="w-full bg-orange-500 text-white py-2 px-4 rounded-md shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
             >
-              {isSubmitting ? "Creating..." : "Create"}
+              {isSubmitting ? "Creating..." : "Create Campaign"}
             </button>
           </Form>
         )}

@@ -1,11 +1,11 @@
 "use client";
-import "dotenv/config";
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import CampaignFactory from "../../../artifacts/contracts/Campaign.sol/CampaignFactory.json";
-import Campaign from "../../../artifacts/contracts/Campaign.sol/Campaign.json";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import config from "../../config/config";
+import Campaign from "../../../artifacts/contracts/Campaign.sol/Campaign.json";
+import CampaignFactory from "../../../artifacts/contracts/Campaign.sol/CampaignFactory.json";
 
 function Dashboard() {
   const [startedCampaigns, setStartedCampaigns] = useState([]);
@@ -27,7 +27,7 @@ function Dashboard() {
 
         // Contract connection
         const factoryContract = new ethers.Contract(
-          process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+          config.contractAddress,
           CampaignFactory.abi,
           provider
         );

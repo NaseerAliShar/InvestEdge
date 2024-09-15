@@ -1,8 +1,7 @@
 "use client";
-import "dotenv/config";
-import Link from "next/link";
 import Typed from "typed.js";
 import { ethers } from "ethers";
+import config from "./config/config";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import CampaignCard from "./components/campaign-card";
@@ -33,31 +32,36 @@ function Home() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_RPC_URL
-        );
+        const provider = new ethers.JsonRpcProvider(config.rpcUrl);
         const contract = new ethers.Contract(
-          process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+          config.contractAddress,
           CampaignFactory.abi,
           provider
         );
 
         // Get all campaign creation events
-        const AllCampaigns = contract.filters.CampaignCreated();
-        const AllEvents = await contract.queryFilter(AllCampaigns);
-        const Campaigns = AllEvents.map((event) => ({
-          title: event.args.title,
-          owner: event.args.owner,
-          amount: ethers.formatEther(event.args.requiredAmount), // Format amount
-          date: parseInt(event.args.timestamp) * 1000, // Convert to milliseconds
-          id: event.args.campaignAddress,
-        }));
-        toast.success("Campaigns fetched successfully!");
-        setCampaigns(Campaigns);
+        const allCampaignsFilter = contract.filters.CampaignCreated();
+        const allEvents = await contract.queryFilter(allCampaignsFilter);
 
-        console.log("All Campaigns: ", AllCampaigns);
-        console.log("All Events:  ", AllEvents);
-        console.log("Campaigns: ", Campaigns);
+        // Get current time and timestamp for 30 days ago
+        const currentTime = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+        const thirtyDaysAgo = currentTime - 30 * 24 * 60 * 60; // Timestamp for 30 days ago
+
+        // Map events and filter campaigns created within the last 30 days
+        const campaigns = allEvents
+          .map((event) => ({
+            title: event.args.title,
+            owner: event.args.owner,
+            amount: ethers.formatEther(event.args.requiredAmount), // Format amount
+            date: parseInt(event.args.timestamp) * 1000, // Convert to milliseconds
+            id: event.args.campaignAddress,
+          }))
+          .filter((campaign) => campaign.date / 1000 >= thirtyDaysAgo); // Filter by 30 days ago
+
+        toast.success("Campaigns fetched successfully!");
+        setCampaigns(campaigns);
+
+        console.log("Filtered Campaigns: ", campaigns);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
         toast.error("Failed to fetch campaigns");
@@ -73,7 +77,7 @@ function Home() {
         {/* Left Section */}
         <div className="w-full md:w-1/2 p-6 md:p-10">
           <span className="typed text-xl md:text-2xl text-gray-700 font-semibold"></span>
-          <h1 className="text-xl md:text-3xl text-gray-700 font-semibold mt-4">
+          <h1 className="text-3xl md:text-3xl text-gray-700 font-semibold mt-4">
             Empower Your Future with
             <span className="text-orange-600 font-bold"> InvestEdge</span>
           </h1>
@@ -109,4 +113,5 @@ function Home() {
     </div>
   );
 }
+
 export default Home;

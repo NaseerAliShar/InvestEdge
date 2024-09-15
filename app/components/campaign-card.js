@@ -10,16 +10,16 @@ const CampaignCard = ({ campaign }) => {
           {title}
         </h2>
         <div className="mb-6 flex items-center justify-between">
-          <span className="inline-block bg-orange-500 text-white text-md px-4 py-1 rounded-full">
+          <span className="inline-block bg-orange-500 text-white text-sm px-4 py-1 rounded-full">
             {owner.substring(0, 9)}...{owner.substring(owner.length - 4)}
           </span>
-          <span className="ml-4 text-md text-gray-500">Owner</span>
+          <span className="ml-4 text-sm text-gray-500">Owner</span>
         </div>
         <div className="mb-6 flex justify-between">
           <span className="text-gray-700 font-semibold block">
             Required Amount:
           </span>
-          <span className="text-xl font-semibold text-gray-900">
+          <span className="text-lg font-semibold text-gray-900">
             {amount} ETH
           </span>
         </div>

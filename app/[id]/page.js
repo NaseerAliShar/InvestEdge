@@ -2,8 +2,8 @@
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FaCircleNotch } from "react-icons/fa";
-import React, { useEffect, useState } from "react";
 import Campaign from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 function CampaignDetails() {
@@ -40,7 +40,6 @@ function CampaignDetails() {
         owner,
       });
 
-      // Fetch all donations
       const Donations = contract.filters.Donated();
       const allDonationEvents = await contract.queryFilter(Donations);
       const allDonationsList = allDonationEvents.map((donation) => ({
@@ -51,7 +50,6 @@ function CampaignDetails() {
         ).toLocaleString(),
       }));
 
-      // Filter my donations by address
       const myDonationsList = allDonationsList.filter(
         (donation) => donation.donor.toLowerCase() === address.toLowerCase()
       );
@@ -112,20 +110,20 @@ function CampaignDetails() {
   const progress = (campaign.receivedAmount / campaign.requiredAmount) * 100;
 
   return (
-    <div className="bg-orange-100 p-10 min-h-screen">
-      <h1 className="text-3xl text-center font-bold mb-8 text-gray-800">
+    <div className="bg-orange-100 p-4 md:p-10 min-h-screen">
+      <h1 className="text-2xl md:text-3xl text-center font-bold mb-6 md:mb-8 text-gray-800">
         Campaign Details
       </h1>
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
-        <div className="p-8">
-          <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800">
+        <div className="p-6 md:p-8">
+          <h2 className="text-lg md:text-2xl font-semibold text-center mb-4 text-gray-800">
             {campaign.title}
           </h2>
-          <p className="mb-6 text-gray-600 text-center">
+          <p className="mb-4 md:mb-6 text-gray-600 text-sm md:text-lg text-center">
             {campaign.description}
           </p>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex flex-col items-center">
               <span className="text-gray-700 font-semibold">
                 Funding Goal:{" "}
@@ -151,16 +149,16 @@ function CampaignDetails() {
             <h3 className="font-semibold text-gray-800 mb-4 text-center">
               Donate to this campaign
             </h3>
-            <div className="flex justify-center">
+            <div className="flex flex-col md:flex-row justify-center items-center">
               <input
                 type="text"
-                className="border border-gray-300 rounded-l-lg py-2 px-4 focus:outline-none focus:ring focus:ring-orange-500"
+                className="border border-gray-300 rounded-l-lg py-2 px-4 w-full md:w-auto mb-4 md:mb-0 md:mr-2 focus:outline-none focus:ring focus:ring-orange-500"
                 placeholder="Enter amount in ETH"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
               <button
-                className="bg-orange-500 text-white py-2 px-4 rounded-r-lg hover:bg-orange-600"
+                className="bg-orange-500 text-white py-2 px-4 w-full md:w-auto rounded-r-lg hover:bg-orange-600"
                 onClick={Donate}
               >
                 Donate
@@ -169,15 +167,15 @@ function CampaignDetails() {
           </div>
 
           {/* My Donations Table */}
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-center mb-4">
+          <div className="mt-10 overflow-x-auto">
+            <h3 className="md:text-lg font-semibold text-center mb-4">
               My Donations
             </h3>
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border-b">Amount (ETH)</th>
-                  <th className="py-2 px-4 border-b">Date</th>
+                  <th className="py-1 px-4 border-b">Amount (ETH)</th>
+                  <th className="py-1 px-4 border-b">Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,16 +202,16 @@ function CampaignDetails() {
           </div>
 
           {/* All Donations Table */}
-          <div className="mt-10">
+          <div className="mt-10 overflow-x-auto">
             <h3 className="text-lg font-semibold text-center mb-4">
               All Donations
             </h3>
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border-b">Donor</th>
-                  <th className="py-2 px-4 border-b">Amount (ETH)</th>
-                  <th className="py-2 px-4 border-b">Date</th>
+                  <th className="py-1 px-2 border-b">Donor</th>
+                  <th className="py-1 px-2 border-b">Amount (ETH)</th>
+                  <th className="py-1 px-2 border-b">Date</th>
                 </tr>
               </thead>
               <tbody>
